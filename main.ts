@@ -24,7 +24,9 @@ controller.up.onEvent(ControllerButtonEvent.Pressed, function () {
         wallsOffText.setBorder(1, 0, 2)
     } else {
         if (!(direction == "down")) {
-            direction = "up"
+            if (!(controller.left.isPressed() || controller.right.isPressed())) {
+                direction = "up"
+            }
         }
     }
 })
@@ -58,23 +60,25 @@ controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
             `, SpriteKind.Food)
         setupSnake()
         moveApple()
+    } else {
+        game.splash("Score: " + score)
     }
 })
 controller.left.onEvent(ControllerButtonEvent.Pressed, function () {
-    if (menu) {
-    	
-    } else {
+    if (!(menu)) {
         if (!(direction == "right")) {
-            direction = "left"
+            if (!(controller.up.isPressed() || controller.down.isPressed())) {
+                direction = "left"
+            }
         }
     }
 })
 controller.right.onEvent(ControllerButtonEvent.Pressed, function () {
-    if (menu) {
-    	
-    } else {
+    if (!(menu)) {
         if (!(direction == "left")) {
-            direction = "right"
+            if (!(controller.up.isPressed() || controller.down.isPressed())) {
+                direction = "right"
+            }
         }
     }
 })
@@ -164,7 +168,9 @@ controller.down.onEvent(ControllerButtonEvent.Pressed, function () {
         wallsOffText.setBorder(1, 1, 2)
     } else {
         if (!(direction == "up")) {
-            direction = "down"
+            if (!(controller.left.isPressed() || controller.right.isPressed())) {
+                direction = "down"
+            }
         }
     }
 })

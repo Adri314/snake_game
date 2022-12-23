@@ -9,6 +9,9 @@ controller.up.onEvent(ControllerButtonEvent.Pressed, function () {
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Tail, function (sprite, otherSprite) {
     game.over(false)
 })
+function moveApple () {
+    apple.setPosition(4 + randint(0, 19) * 8, 4 + randint(0, 14) * 8)
+}
 controller.left.onEvent(ControllerButtonEvent.Pressed, function () {
     if (!(direction == "right")) {
         direction = "left"
@@ -24,36 +27,52 @@ controller.down.onEvent(ControllerButtonEvent.Pressed, function () {
         direction = "down"
     }
 })
-let direction = ""
-let tailPart: Sprite = null
-scene.setBackgroundColor(13)
-let snake = sprites.create(img`
-    c c c c c c c c 
-    c c c c c c c c 
-    c c c c 1 1 c c 
-    c c c c 1 1 c c 
-    c c c c c c c c 
-    c c c c c c c c 
-    c c c c c c c c 
-    c c c c c c c c 
-    `, SpriteKind.Player)
-snake.setPosition(52, 60)
-let tailParts: Sprite[] = []
-for (let index = 0; index <= 3; index++) {
-    tailPart = sprites.create(img`
+function setupSnake () {
+    snake = sprites.create(img`
+        c c c c c c c c 
+        c c c c c c c c 
+        c c c c 1 1 c c 
+        c c c c 1 1 c c 
         c c c c c c c c 
         c c c c c c c c 
         c c c c c c c c 
         c c c c c c c c 
-        c c c c c c c c 
-        c c c c c c c c 
-        c c c c c c c c 
-        c c c c c c c c 
-        `, SpriteKind.Tail)
-    tailPart.x = snake.x + (index + 1) * 8
-    tailParts.push(tailPart)
+        `, SpriteKind.Player)
+    snake.setPosition(52, 60)
+    tailParts = []
+    for (let index = 0; index <= 3; index++) {
+        tailPart = sprites.create(img`
+            c c c c c c c c 
+            c c c c c c c c 
+            c c c c c c c c 
+            c c c c c c c c 
+            c c c c c c c c 
+            c c c c c c c c 
+            c c c c c c c c 
+            c c c c c c c c 
+            `, SpriteKind.Tail)
+        tailPart.x = snake.x + (index + 1) * 8
+        tailParts.push(tailPart)
+    }
+    direction = "left"
 }
-direction = "left"
+let tailPart: Sprite = null
+let tailParts: Sprite[] = []
+let snake: Sprite = null
+let direction = ""
+let apple: Sprite = null
+scene.setBackgroundColor(13)
+apple = sprites.create(img`
+    2 2 2 2 2 2 
+    2 2 2 2 2 2 
+    2 2 2 2 2 2 
+    2 2 2 2 2 2 
+    2 2 2 2 2 2 
+    2 2 2 2 2 2 
+    `, SpriteKind.Food)
+apple.setPosition(4 + randint(0, 19) * 8, 4 + randint(0, 14) * 8)
+moveApple()
+setupSnake()
 game.onUpdateInterval(500, function () {
     tailPart = sprites.create(img`
         c c c c c c c c 
@@ -123,5 +142,9 @@ game.onUpdateInterval(500, function () {
         tailPart.x = snake.x
     }
     tailParts.unshift(tailPart)
-    tailParts.pop().destroy()
+    if (snake.overlapsWith(apple)) {
+        moveApple()
+    } else {
+        tailParts.pop().destroy()
+    }
 })

@@ -29,6 +29,7 @@ controller.up.onEvent(ControllerButtonEvent.Pressed, function () {
     }
 })
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Tail, function (sprite, otherSprite) {
+    info.setScore(score)
     game.over(false)
 })
 function moveApple () {
@@ -149,6 +150,7 @@ function moveSnake () {
     checkBorders()
     if (snake.overlapsWith(apple)) {
         music.playSoundEffect(music.createSoundEffect(WaveShape.Square, 400, 600, 255, 0, 100, SoundExpressionEffect.None, InterpolationCurve.Linear), SoundExpressionPlayMode.InBackground)
+        score += 1
         moveApple()
     } else {
         tailParts.pop().destroy()
@@ -198,24 +200,28 @@ function setupSnake () {
 function checkBorders () {
     if (snake.x < 0) {
         if (walls) {
+            info.setScore(score)
             game.over(false)
         } else {
             snake.x = 156
         }
     } else if (snake.x > 160) {
         if (walls) {
+            info.setScore(score)
             game.over(false)
         } else {
             snake.x = 4
         }
     } else if (snake.y < 0) {
         if (walls) {
+            info.setScore(score)
             game.over(false)
         } else {
             snake.y = 116
         }
     } else if (snake.y > 120) {
         if (walls) {
+            info.setScore(score)
             game.over(false)
         } else {
             snake.y = 4
@@ -233,11 +239,13 @@ let wallsOnText: TextSprite = null
 let title: TextSprite = null
 let walls = false
 let menu = false
+let score = 0
 color.setPalette(
-color.Poke
+color.GrayScale
 )
-scene.setBackgroundColor(9)
+scene.setBackgroundColor(4)
 setupMenu()
+score = 0
 game.onUpdateInterval(200, function () {
     if (!(menu)) {
         moveSnake()

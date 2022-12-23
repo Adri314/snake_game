@@ -1,9 +1,31 @@
 namespace SpriteKind {
     export const Tail = SpriteKind.create()
 }
+function setupMenu () {
+    menu = true
+    walls = true
+    title = textsprite.create("SNAKE", 0, 10)
+    title.setPosition(20, 20)
+    title.setMaxFontHeight(40)
+    wallsOnText = textsprite.create("Walls On", 0, 1)
+    wallsOnText.setPosition(80, 66)
+    wallsOnText.setBorder(1, 1, 2)
+    wallsOffText = textsprite.create("Walls Off", 0, 1)
+    wallsOffText.setPosition(80, 86)
+    wallsOffText.setBorder(1, 0, 2)
+    pressAText = textsprite.create("Press A to start", 0, 10)
+    pressAText.setPosition(80, 106)
+}
 controller.up.onEvent(ControllerButtonEvent.Pressed, function () {
-    if (!(direction == "down")) {
-        direction = "up"
+    if (menu) {
+        music.footstep.play()
+        walls = true
+        wallsOnText.setBorder(1, 1, 2)
+        wallsOffText.setBorder(1, 0, 2)
+    } else {
+        if (!(direction == "down")) {
+            direction = "up"
+        }
     }
 })
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Tail, function (sprite, otherSprite) {
@@ -11,140 +33,213 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.Tail, function (sprite, otherSpr
 })
 function moveApple () {
     apple.setPosition(4 + randint(0, 19) * 8, 4 + randint(0, 14) * 8)
+    for (let value of tailParts) {
+        while (apple.overlapsWith(value) || apple.overlapsWith(snake)) {
+            apple.setPosition(4 + randint(0, 19) * 8, 4 + randint(0, 14) * 8)
+        }
+    }
 }
+controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
+    if (menu) {
+        music.playMelody("E A - - - - - - ", 360)
+        title.destroy()
+        pressAText.destroy()
+        wallsOnText.destroy()
+        wallsOffText.destroy()
+        menu = false
+        apple = sprites.create(img`
+            . . a a . . 
+            . a a a a . 
+            a a a a a a 
+            a a a a a a 
+            . a a a a . 
+            . . a a . . 
+            `, SpriteKind.Food)
+        setupSnake()
+        moveApple()
+    }
+})
 controller.left.onEvent(ControllerButtonEvent.Pressed, function () {
-    if (!(direction == "right")) {
-        direction = "left"
+    if (menu) {
+    	
+    } else {
+        if (!(direction == "right")) {
+            direction = "left"
+        }
     }
 })
 controller.right.onEvent(ControllerButtonEvent.Pressed, function () {
-    if (!(direction == "left")) {
-        direction = "right"
+    if (menu) {
+    	
+    } else {
+        if (!(direction == "left")) {
+            direction = "right"
+        }
     }
 })
-controller.down.onEvent(ControllerButtonEvent.Pressed, function () {
-    if (!(direction == "up")) {
-        direction = "down"
-    }
-})
-function setupSnake () {
-    snake = sprites.create(img`
-        c c c c c c c c 
-        c c c c c c c c 
-        c c c c 1 1 c c 
-        c c c c 1 1 c c 
-        c c c c c c c c 
-        c c c c c c c c 
-        c c c c c c c c 
-        c c c c c c c c 
-        `, SpriteKind.Player)
-    snake.setPosition(52, 60)
-    tailParts = []
-    for (let index = 0; index <= 3; index++) {
-        tailPart = sprites.create(img`
-            c c c c c c c c 
-            c c c c c c c c 
-            c c c c c c c c 
-            c c c c c c c c 
-            c c c c c c c c 
-            c c c c c c c c 
-            c c c c c c c c 
-            c c c c c c c c 
-            `, SpriteKind.Tail)
-        tailPart.x = snake.x + (index + 1) * 8
-        tailParts.push(tailPart)
-    }
-    direction = "left"
-}
-let tailPart: Sprite = null
-let tailParts: Sprite[] = []
-let snake: Sprite = null
-let direction = ""
-let apple: Sprite = null
-scene.setBackgroundColor(13)
-apple = sprites.create(img`
-    2 2 2 2 2 2 
-    2 2 2 2 2 2 
-    2 2 2 2 2 2 
-    2 2 2 2 2 2 
-    2 2 2 2 2 2 
-    2 2 2 2 2 2 
-    `, SpriteKind.Food)
-apple.setPosition(4 + randint(0, 19) * 8, 4 + randint(0, 14) * 8)
-moveApple()
-setupSnake()
-game.onUpdateInterval(500, function () {
+function moveSnake () {
     tailPart = sprites.create(img`
-        c c c c c c c c 
-        c c c c c c c c 
-        c c c c c c c c 
-        c c c c c c c c 
-        c c c c c c c c 
-        c c c c c c c c 
-        c c c c c c c c 
-        c c c c c c c c 
+        . a a a a a a . 
+        a a a a a a a a 
+        a a a a a a a a 
+        a a a a a a a a 
+        a a a a a a a a 
+        a a a a a a a a 
+        a a a a a a a a 
+        . a a a a a a . 
         `, SpriteKind.Tail)
     if (direction == "left") {
         snake.setImage(img`
-            c c c c c c c c 
-            c c c c c c c c 
-            c c c c 1 1 c c 
-            c c c c 1 1 c c 
-            c c c c c c c c 
-            c c c c c c c c 
-            c c c c c c c c 
-            c c c c c c c c 
+            . a a a a a a . 
+            a a a a a a a a 
+            a a a a a 1 a a 
+            a a a a a a a a 
+            a a a a a a a a 
+            a a a a a a a a 
+            a a a a a a a a 
+            . a a a a a a . 
             `)
         snake.x += -8
         tailPart.x = snake.x + 8
         tailPart.y = snake.y
     } else if (direction == "right") {
         snake.setImage(img`
-            c c c c c c c c 
-            c c c c c c c c 
-            c c 1 1 c c c c 
-            c c 1 1 c c c c 
-            c c c c c c c c 
-            c c c c c c c c 
-            c c c c c c c c 
-            c c c c c c c c 
+            . a a a a a a . 
+            a a a a a a a a 
+            a a 1 a a a a a 
+            a a a a a a a a 
+            a a a a a a a a 
+            a a a a a a a a 
+            a a a a a a a a 
+            . a a a a a a . 
             `)
         snake.x += 8
         tailPart.x = snake.x - 8
         tailPart.y = snake.y
     } else if (direction == "up") {
         snake.setImage(img`
-            c c c c c c c c 
-            c c c c c c c c 
-            c c c c c c c c 
-            c c c c c c c c 
-            c c c c 1 1 c c 
-            c c c c 1 1 c c 
-            c c c c c c c c 
-            c c c c c c c c 
+            . a a a a a a . 
+            a a a a a a a a 
+            a a a a a a a a 
+            a a a a a a a a 
+            a a a a a a a a 
+            a a a a a 1 a a 
+            a a a a a a a a 
+            . a a a a a a . 
             `)
         snake.y += -8
         tailPart.y = snake.y + 8
         tailPart.x = snake.x
     } else if (direction == "down") {
         snake.setImage(img`
-            c c c c c c c c 
-            c c c c c c c c 
-            c c c c c c c c 
-            c c c c c c c c 
-            c c 1 1 c c c c 
-            c c 1 1 c c c c 
-            c c c c c c c c 
-            c c c c c c c c 
+            . a a a a a a . 
+            a a a a a a a a 
+            a a a a a a a a 
+            a a a a a a a a 
+            a a a a a a a a 
+            a a 1 a a a a a 
+            a a a a a a a a 
+            . a a a a a a . 
             `)
         snake.y += 8
         tailPart.y = snake.y - 8
         tailPart.x = snake.x
     }
     tailParts.unshift(tailPart)
+    checkBorders()
     if (snake.overlapsWith(apple)) {
+        music.playSoundEffect(music.createSoundEffect(WaveShape.Square, 400, 600, 255, 0, 100, SoundExpressionEffect.None, InterpolationCurve.Linear), SoundExpressionPlayMode.InBackground)
         moveApple()
     } else {
         tailParts.pop().destroy()
+    }
+}
+controller.down.onEvent(ControllerButtonEvent.Pressed, function () {
+    if (menu) {
+        music.footstep.play()
+        walls = false
+        wallsOnText.setBorder(1, 0, 2)
+        wallsOffText.setBorder(1, 1, 2)
+    } else {
+        if (!(direction == "up")) {
+            direction = "down"
+        }
+    }
+})
+function setupSnake () {
+    snake = sprites.create(img`
+        . a a a a a a . 
+        a a a a a a a a 
+        a a a a a 1 a a 
+        a a a a a a a a 
+        a a a a a a a a 
+        a a a a a a a a 
+        a a a a a a a a 
+        . a a a a a a . 
+        `, SpriteKind.Player)
+    snake.setPosition(68, 60)
+    tailParts = []
+    for (let index = 0; index <= 2; index++) {
+        tailPart = sprites.create(img`
+            . a a a a a a . 
+            a a a a a a a a 
+            a a a a a a a a 
+            a a a a a a a a 
+            a a a a a a a a 
+            a a a a a a a a 
+            a a a a a a a a 
+            . a a a a a a . 
+            `, SpriteKind.Tail)
+        tailPart.x = snake.x + (index + 1) * 8
+        tailParts.push(tailPart)
+    }
+    direction = "left"
+}
+function checkBorders () {
+    if (snake.x < 0) {
+        if (walls) {
+            game.over(false)
+        } else {
+            snake.x = 156
+        }
+    } else if (snake.x > 160) {
+        if (walls) {
+            game.over(false)
+        } else {
+            snake.x = 4
+        }
+    } else if (snake.y < 0) {
+        if (walls) {
+            game.over(false)
+        } else {
+            snake.y = 116
+        }
+    } else if (snake.y > 120) {
+        if (walls) {
+            game.over(false)
+        } else {
+            snake.y = 4
+        }
+    }
+}
+let tailPart: Sprite = null
+let snake: Sprite = null
+let tailParts: Sprite[] = []
+let apple: Sprite = null
+let direction = ""
+let pressAText: TextSprite = null
+let wallsOffText: TextSprite = null
+let wallsOnText: TextSprite = null
+let title: TextSprite = null
+let walls = false
+let menu = false
+color.setPalette(
+color.Poke
+)
+scene.setBackgroundColor(9)
+setupMenu()
+game.onUpdateInterval(200, function () {
+    if (!(menu)) {
+        moveSnake()
     }
 })
